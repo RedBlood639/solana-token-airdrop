@@ -13,6 +13,7 @@ const allowedOrigins = ["https://spl-airdrop.vercel.app"];
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log(origin);
       // allow requests with no origin
       // (like mobile apps or curl requests)
       if (!origin) return callback(null, true);

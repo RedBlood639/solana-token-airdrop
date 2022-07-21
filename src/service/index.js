@@ -20,7 +20,7 @@ class Service {
   }
 
   async sendSPLTransaction(receiver) {
-    let cluster = "mainnet-beta";
+    let cluster = "devnet";
     let url = web3.clusterApiUrl(this.toCluster(cluster), true);
     let connection = new web3.Connection(url, "processed");
 
@@ -81,7 +81,7 @@ class Service {
         associatedDestinationTokenAddr,
         wallet.publicKey,
         [],
-        amounts * decimals
+        amounts * 10 ** 6
       )
     );
     const transaction = new web3.Transaction().add(...instructions);

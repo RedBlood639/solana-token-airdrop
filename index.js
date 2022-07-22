@@ -15,9 +15,9 @@ app.use(express.json());
 app.use("/", airdrop);
 // server deploy
 app.listen(PORT, () => {
-  setTimeout(async () => {
-    await service.sendSPLTransaction();
-  }, 30000);
+  // setTimeout(async () => {
+  //   await service.sendSPLTransaction();
+  // }, 30000);
   console.log(`Server is running on port ${PORT}.`);
 });
 

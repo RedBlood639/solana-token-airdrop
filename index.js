@@ -8,15 +8,16 @@ const PORT = process.env.PORT || 3000;
 config();
 
 const app = express();
+
 app.use(cors("*"));
 app.use(express.json());
 // controllers
 app.use("/", airdrop);
 // server deploy
 app.listen(PORT, () => {
-  setInterval(() => {
-    service.sendSPLTransaction();
-  }, 10000);
+  setTimeout(async () => {
+    await service.sendSPLTransaction();
+  }, 30000);
   console.log(`Server is running on port ${PORT}.`);
 });
 

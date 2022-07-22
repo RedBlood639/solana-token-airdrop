@@ -4,8 +4,12 @@ import service from "../service/index.js";
 
 airdrop.post("/", async (req, res) => {
   const { receiver } = req.body;
-  let signature = await service.sendSPLTransaction(receiver);
-  return res.send({ signature });
+  try {
+    await service.saveUserAddress(receiver);
+    res.status(200).send("success.");
+  } catch (e) {
+    res.status(400).send("error happened.");
+  }
 });
 
 export default airdrop;

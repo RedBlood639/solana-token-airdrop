@@ -1,5 +1,8 @@
 import { web3 } from "@project-serum/anchor";
 import { TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
+import csv from "csv-parser";
+import fastcsv from "fast-csv";
+import fs from "fs";
 import pkg from "bs58";
 const { decode } = pkg;
 
@@ -19,7 +22,20 @@ class Service {
     throw new Error("Invalid cluster provided.");
   }
 
-  async sendSPLTransaction(receiver) {
+  saveUserAddress = async (receiver) => {
+    const dataObj = [{ address: receiver }];
+    const csvFile = fs.createWriteStream("./src/files/airdrop.csv", {
+      flags: "a",
+    });
+    csvFile.write("\n");
+    fastcsv
+      .writeToStream(csvFile, dataObj, { headers: false })
+      .on("finish", () => {
+        return;
+      });
+  };
+
+  sendSPLTransaction = async () => {
     let cluster = "devnet";
     let url = web3.clusterApiUrl(this.toCluster(cluster), true);
     let connection = new web3.Connection(url, "processed");
@@ -29,14 +45,26 @@ class Service {
     const Uin8bytes = decode(SECRET_KEY);
     const fromWallet = web3.Keypair.fromSecretKey(Uint8Array.from(Uin8bytes));
     const tokenMintAddress = process.env.TOKEN_ADDRESS;
-    const to = new web3.PublicKey(receiver);
 
-    await this.tokenTransfer(tokenMintAddress, fromWallet, to, connection, 1);
-  }
+    fs.createReadStream("./src/files/airdrop.csv")
+      .pipe(csv())
+      .on("data", async (row) => {
+        console.log(row?.address);
+        const to = new web3.PublicKey(row?.address);
+        await this.tokenTransfer(
+          tokenMintAddress,
+          fromWallet,
+          to,
+          connection,
+          50
+        );
+      })
+      .on("end", () => {
+        console.log("CSV file successfully processed");
+      });
+  };
 
-  async tokenTransfer(tokenMintAddress, wallet, to, connection, amounts) {
-    let decimals = web3.LAMPORTS_PER_SOL;
-
+  tokenTransfer = async (tokenMintAddress, wallet, to, connection, amounts) => {
     const mintPublicKey = new web3.PublicKey(tokenMintAddress);
     const mintToken = new Token(
       connection,
@@ -44,7 +72,6 @@ class Service {
       TOKEN_PROGRAM_ID,
       wallet
     );
-
     const fromTokenAccount = await mintToken.getOrCreateAssociatedAccountInfo(
       wallet.publicKey
     );
@@ -52,6 +79,7 @@ class Service {
 
     const dest = to;
     const destPublicKey = new web3.PublicKey(dest);
+    // const associatedDestinationTokenAccount = await mintToken.getOrCreateAssociatedAccountInfo(destPublicKey)
     const associatedDestinationTokenAddr =
       await Token.getAssociatedTokenAddress(
         mintToken.associatedProgramId,
@@ -94,7 +122,7 @@ class Service {
     console.log("SUCCESS");
 
     return signature;
-  }
+  };
 }
 
 export default new Service();

@@ -23,8 +23,13 @@
     "bcryptjs": "^2.4.3",
     "bs58": "^5.0.0",
     "cors": "^2.8.5",
+    "csv-append": "^1.0.0",
+    "csv-parser": "^3.0.0",
+    "csv-writer": "^1.6.0",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
-    "nodemon": "^2.0.15"
+    "fast-csv": "^4.3.6",
+    "nodemon": "^2.0.15",
+    "read-excel-file": "^5.4.4"
   }
 }
